@@ -3,12 +3,14 @@ import pandas as pd
 from const import CONST
 from neural_network import ThreeLayerNN
 import matplotlib.pylab as plt
+from sklearn.metrics import accuracy_score
 
 
 X_test = pd.read_csv(CONST.X_TEST)
 Y_train = pd.read_csv(CONST.Y_TRAIN)
 Y_test = pd.read_csv(CONST.Y_TEST)
 X_train = pd.read_csv(CONST.X_TRAIN)
+
 # feature scaling, i.e., limit the range of variables 
 # so that they can be compared on common grounds
 print 'KNN ACCURACY SCORE:'
@@ -29,6 +31,7 @@ print pre.get_accuracy(X_test_minmax, Y_test, model)
  
 print 'LINEAR REGRESSION'
 encoded_y_train, encoded_y_test = pre.encoding_categorical(Y_train, Y_test)
+print encoded_y_test[:50].values.ravel()
 model = pre.train_linear_regression(X_train[CONST.COLS], encoded_y_train)
 print 'ACCURACY before scaling'
 print pre.get_accuracy_rounded(X_test[CONST.COLS], encoded_y_test, model)
@@ -98,11 +101,17 @@ print pre.get_accuracy(X_test_hot_enc_scale, Y_test, model)
 # nn_structure = [43, 20, 10]
 output_layer_nodes = 9
 threelnn = ThreeLayerNN(43, 20, output_layer_nodes)
-#     print X_train_hot_enc_scale[sample_index]
-#     print expected_outputs
 weights, biases, avg_cost_curve = threelnn.train_nn(X_train_hot_enc_scale[:50], encoded_y_train.values.ravel(), 3000, 0.25)
 
 plt.plot(avg_cost_curve)
 plt.ylabel('Average Cost Function')
 plt.xlabel('Iteration number')
-plt.show() 
+plt.show()
+
+predicted_classes = threelnn.test_nn(weights, biases, X_test_hot_enc_scale[:50])
+print 'expected:'
+print Y_test[:50].values.ravel()
+print 'actual:'
+print predicted_classes
+print 'ACCURACY SCORE for custom 3-layers Neural Network'
+print accuracy_score(Y_test[:50].values.ravel(), predicted_classes) * 100

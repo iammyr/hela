@@ -1,6 +1,6 @@
 import numpy as np
 import numpy.random as nprand
-from numpy.random import sample
+
 
 class ThreeLayerNN:
     def __init__(self, l1_tot_nodes=0, l2_tot_nodes=0, l3_tot_nodes=0):
@@ -88,6 +88,23 @@ class ThreeLayerNN:
         """
         return np.dot(np.transpose(weights_at_layer), gradient_at_layer_plus_1) * self.sigmoid_derivative(z_at_layer)
     
+    
+    def convert_single_to_multi_output(self, expected_class):
+        expected_outputs = []
+        for ind in range(0, self.nn_structure[2]):
+            if ind == expected_class:
+                expected_outputs.append(1)
+            else:
+                expected_outputs.append(0)
+        return expected_outputs
+    
+    
+    def convert_multi_to_single_output(self, multi_output):
+        for ind in range(0, len(multi_output)):
+            if multi_output[ind] != 0:
+                return ind
+        return -1
+    
 
     def train_nn(self, inputs_x, outputs_y, max_iterations = 3000, step = 0.25):
         # 1) randomly initialise weights and biases for all layers
@@ -96,16 +113,10 @@ class ThreeLayerNN:
         avg_cost_curve = []
         for sample_index in range(0, len(inputs_x)):
             print('Training NN with sample #{}').format(sample_index)
-            expected_out = outputs_y[sample_index]
-            expected_outputs = []
-            for ind in range(0, self.nn_structure[2]):
-                if ind == expected_out:
-                    expected_outputs.append(1)
-                else:
-                    expected_outputs.append(0)
+            expected_outputs = self.convert_single_to_multi_output(outputs_y[sample_index])            
             inputs_x_curr = inputs_x[sample_index]
             iteration = 0
-            tot_classes_to_predict = len(expected_outputs)
+            tot_classes_to_predict = self.nn_structure[2]
             output_layer = len(self.nn_structure)
             print('Starting gradient descent for {} iterations').format(max_iterations)
             # at each iteration until the limit is reached
@@ -146,5 +157,33 @@ class ThreeLayerNN:
                 avg_cost_curve.append(avg_cost)
                 iteration += 1
             return weights, biases, avg_cost_curve
+        
+        
+    def predict_classes(self, weights, biases, inputs_x_curr):
+        tot_classes_to_predict = self.nn_structure[2]
+        classes = np.zeros((tot_classes_to_predict,))
+        for i in range(tot_classes_to_predict):
+            h, z = self.feed_forward(inputs_x_curr, weights, biases)
+            print h[3]
+            classes[i] = np.argmax(h[len(self.nn_structure)])
+            print 'classes[i]'
+            print classes[i]
+        print 'predicted classes:'
+        print classes
+        return classes
+        
+        
+    def test_nn(self, weights, biases, x_test_set):
+        prediction = []
+        for sample_index in range(0, len(x_test_set)):
+            print('Testing NN with sample #{}').format(sample_index)
+            sample_prediction = self.predict_classes(weights, biases, x_test_set[sample_index])
+            single_output = self.convert_multi_to_single_output(sample_prediction)
+            print 'single output'
+            print single_output
+            prediction.append(single_output)
+        return prediction
+
+        
 
     
