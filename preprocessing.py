@@ -28,7 +28,7 @@ def scaling(x_train, x_test):
     from sklearn.preprocessing import MinMaxScaler
     min_max = MinMaxScaler()
     return min_max.fit_transform(x_train), min_max.fit_transform(x_test)
-
+ 
 
 # STANDARDISING, i.e., Standardization (or Z-score normalization)
 # is the process where the features are rescaled so that they will
