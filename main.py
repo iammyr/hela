@@ -1,6 +1,9 @@
 import preprocessing as pre
 import pandas as pd
 from const import CONST
+from neural_network import ThreeLayerNN
+import matplotlib.pylab as plt
+
 
 X_test = pd.read_csv(CONST.X_TEST)
 Y_train = pd.read_csv(CONST.Y_TRAIN)
@@ -8,9 +11,6 @@ Y_test = pd.read_csv(CONST.Y_TEST)
 X_train = pd.read_csv(CONST.X_TRAIN)
 # feature scaling, i.e., limit the range of variables 
 # so that they can be compared on common grounds
-X_train[X_train.dtypes[(X_train.dtypes=="float64")|(X_train.dtypes=="int64")]
-                        .index.values].hist(figsize=[11,11])
-
 print 'KNN ACCURACY SCORE:'
 model = pre.train_knn(X_train[CONST.COLS], Y_train.values.ravel(), CONST.COLS)
 print pre.get_accuracy(X_test[CONST.COLS], Y_test, model)
@@ -21,12 +21,12 @@ print 'ACCURACY JUST BY GUESSING'
 print 'Y_test.Target.value_counts()' + str(Y_test.Target.value_counts())
 print 'Y_test.Target.count()' + str(Y_test.Target.count())
 print Y_test.Target.value_counts()/Y_test.Target.count()
-
+ 
 X_train_minmax, X_test_minmax = pre.scaling(X_train[CONST.COLS], X_test[CONST.COLS])
 print 'KNN ACCURACY after scaling'
 model = pre.train_knn(X_train_minmax, Y_train.values.ravel(), CONST.COLS)
 print pre.get_accuracy(X_test_minmax, Y_test, model) 
-
+ 
 print 'LINEAR REGRESSION'
 encoded_y_train, encoded_y_test = pre.encoding_categorical(Y_train, Y_test)
 model = pre.train_linear_regression(X_train[CONST.COLS], encoded_y_train)
@@ -34,7 +34,7 @@ print 'ACCURACY before scaling'
 print pre.get_accuracy_rounded(X_test[CONST.COLS], encoded_y_test, model)
 print 'ACCURACY after scaling'
 print pre.get_accuracy_rounded(X_test_minmax, encoded_y_test, model)
-
+ 
 print 'LOGISTIC REGRESSION'
 model = pre.train_logistic_regression(X_train[CONST.COLS], encoded_y_train.values.ravel())
 print 'ACCURACY before scaling'
@@ -45,7 +45,7 @@ X_train_enc_scale, X_test_enc_scale = pre.scaling(X_train[CONST.COLS], X_test[CO
 model = pre.train_logistic_regression(X_train_enc_scale, Y_train.values.ravel())
 print 'ACCURACY after standardising'
 print pre.get_accuracy(X_test_enc_scale, Y_test, model)
-
+ 
 # print 'SUPPORT VECTOR MACHINE (SVM)'
 # model = train_svm_linear_svc(X_train[cols_of_interest], encoded_y_train)
 # print 'ACCURACY before standardisation'
@@ -80,3 +80,29 @@ model = pre.train_logistic_regression(X_train_hot_enc_scale, Y_train.values.rave
 print 'accuracy after standardisation and after OneHotEncoding:'
 print pre.get_accuracy(X_test_hot_enc_scale, Y_test, model)
 
+
+
+# 43=n 43 features 43 input signals
+# 9=output; Attack categories
+# 1 Fuzzers, 
+# 2 Analysis, 
+# 3 Backdoors, 
+# 4 DoS 
+# 5 Exploits, 
+# 6 Generic, 
+# 7 Reconnaissance, 
+# 8 Shellcode
+# 9 Worms
+# 0 None
+# Hidden Layer in 3-layers NN has 20 nodes
+# nn_structure = [43, 20, 10]
+output_layer_nodes = 9
+threelnn = ThreeLayerNN(43, 20, output_layer_nodes)
+#     print X_train_hot_enc_scale[sample_index]
+#     print expected_outputs
+weights, biases, avg_cost_curve = threelnn.train_nn(X_train_hot_enc_scale[:50], encoded_y_train.values.ravel(), 3000, 0.25)
+
+plt.plot(avg_cost_curve)
+plt.ylabel('Average Cost Function')
+plt.xlabel('Iteration number')
+plt.show() 
