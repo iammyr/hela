@@ -28,11 +28,10 @@ class ConvNN:
         x_shaped = tf.reshape(x, [tot_tr_samples, img_height, img_width, num_filters[0]])
         # now declare the output data placeholder
         y = tf.placeholder(tf.float32, [None, self.nn_structure[0]])
-        cross_entropy, y_ = self.layer_up(num_filters[0], 
+        cross_entropy, y_ = self.layer_up(num_filters, 
                                           train_y, x_shaped, 
                                           final_grid_width, 
-                                          final_grid_height, 
-                                          num_filters[2], filter_width, 
+                                          final_grid_height, filter_width, 
                                           filter_height, pool_width, 
                                           pool_height, stddev_w, stddev_b, 
                                           pooling_stride_width, 
@@ -76,7 +75,7 @@ class ConvNN:
         return d
     
     
-    def layer_up(self, num_filters, train_y, x_shaped, final_grid_width, final_grid_height, final_chans, filter_width, filter_height, pool_width, pool_height, stddev_w, stddev_b, pooling_stride_width, pooling_stride_height, filter_stride_width, filter_stride_height):
+    def layer_up(self, num_filters, train_y, x_shaped, final_grid_width, final_grid_height, filter_width, filter_height, pool_width, pool_height, stddev_w, stddev_b, pooling_stride_width, pooling_stride_height, filter_stride_width, filter_stride_height):
         # create 2 convolutional layers
         layer1 = self.create_new_conv_layer(x_shaped, num_filters[0], num_filters[1], filter_width, filter_height, pool_width, pool_height, 'layer1', stddev_w, pooling_stride_width, pooling_stride_height, filter_stride_width, filter_stride_height)
         layer2 = self.create_new_conv_layer(layer1, num_filters[1], num_filters[2], filter_width, filter_height, pool_width, pool_height, 'layer2', stddev_w, pooling_stride_width, pooling_stride_height, filter_stride_width, filter_stride_height)
@@ -84,7 +83,7 @@ class ConvNN:
         # It is now a 7x7 grid of nodes with 64 channels, which equates 
         # to 3136 nodes per training sample.
         # -1 is to dynamically calculate the first dimension
-        flattened = tf.reshape(layer2, [-1, final_grid_width * final_grid_height * final_chans])
+        flattened = tf.reshape(layer2, [-1, final_grid_width * final_grid_height * num_filters[2]])
         # setup some weights and bias values for this layer
         wd1 = tf.Variable(tf.truncated_normal([final_grid_width * final_grid_height * num_filters[2], 1000], stddev=stddev_w), name='wd1')
         bd1 = tf.Variable(tf.truncated_normal([1000], stddev=stddev_b), name='bd1')
