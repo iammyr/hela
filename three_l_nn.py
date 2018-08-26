@@ -106,9 +106,7 @@ class ThreeLayerNN:
         return -1
     
 
-    def train_nn(self, inputs_x, outputs_y, max_iterations = 3000, step = 0.25):
-        # 1) randomly initialise weights and biases for all layers
-        weights, biases = self.init_weights_biases()
+    def train_nn(self, inputs_x, outputs_y, weights, biases, max_iterations = 3000, step = 0.25):
         # for each sample, iterate feed-fwd and back-propagation to adjust the weights and biases
         avg_cost_curve = []
         for sample_index in range(0, len(inputs_x)):

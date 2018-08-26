@@ -4,7 +4,7 @@ import pandas as pd
 # Tests the accuracy of the trained model using X_test and Y_test.
 # It only considers data under the cols-titled columns (cols is an array of column titles
 # to consider).
-# returns the traind KNN model.
+# returns the trained KNN model.
 # Note: y_train needs to be a 1-dimensional vector.
 def train_knn(x_train, y_train, cols):
     from sklearn.neighbors import KNeighborsClassifier

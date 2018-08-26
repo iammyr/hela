@@ -1,9 +1,10 @@
 import preprocessing as pre
 import pandas as pd
 from const import CONST
-from neural_network import ThreeLayerNN
+from three_l_nn import ThreeLayerNN
 import matplotlib.pylab as plt
 from sklearn.metrics import accuracy_score
+from three_l_nn_tf import ThreeLayerNN as Tlnntf
 
 
 X_test = pd.read_csv(CONST.X_TEST)
@@ -84,34 +85,65 @@ print 'accuracy after standardisation and after OneHotEncoding:'
 print pre.get_accuracy(X_test_hot_enc_scale, Y_test, model)
 
 
+def three_l_nn(l1, l2, l3, mi, s):
+    # 43=n 43 features 43 input signals
+    # 9=output; Attack categories
+    # 1 Fuzzers, 
+    # 2 Analysis, 
+    # 3 Backdoors, 
+    # 4 DoS 
+    # 5 Exploits, 
+    # 6 Generic, 
+    # 7 Reconnaissance, 
+    # 8 Shellcode
+    # 9 Worms
+    # 0 None
+    # Hidden Layer in 3-layers NN has 20 nodes
+    # nn_structure = [43, 20, 10]
+    threelnn = ThreeLayerNN(l1, l2, l3)
+    # 1) randomly initialise weights and biases for all layers
+    weights, biases = threelnn.init_weights_biases()
+    weights, biases, avg_cost_curve = threelnn.train_nn(X_train_hot_enc_scale[:50], encoded_y_train.values.ravel(), weights, biases, mi, s)
+    predicted_classes = threelnn.test_nn(weights, biases, X_test_hot_enc_scale[:50])
+    acc_score = accuracy_score(Y_test[:50].values.ravel(), predicted_classes) * 100
+    return avg_cost_curve, acc_score, predicted_classes
 
-# 43=n 43 features 43 input signals
-# 9=output; Attack categories
-# 1 Fuzzers, 
-# 2 Analysis, 
-# 3 Backdoors, 
-# 4 DoS 
-# 5 Exploits, 
-# 6 Generic, 
-# 7 Reconnaissance, 
-# 8 Shellcode
-# 9 Worms
-# 0 None
-# Hidden Layer in 3-layers NN has 20 nodes
-# nn_structure = [43, 20, 10]
-output_layer_nodes = 9
-threelnn = ThreeLayerNN(43, 20, output_layer_nodes)
-weights, biases, avg_cost_curve = threelnn.train_nn(X_train_hot_enc_scale[:50], encoded_y_train.values.ravel(), 3000, 0.25)
+def display(avg_cost_curve, acc_score, predicted_classes):
+    plt.plot(avg_cost_curve)
+    plt.ylabel('Average Cost Function')
+    plt.xlabel('Iteration number')
+    plt.show()
+    print 'expected:'
+    print Y_test[:50].values.ravel()
+    print 'actual:'
+    print predicted_classes
+    print 'ACCURACY SCORE for custom 3-layers Neural Network'
+    print acc_score
 
-plt.plot(avg_cost_curve)
-plt.ylabel('Average Cost Function')
-plt.xlabel('Iteration number')
-plt.show()
 
-predicted_classes = threelnn.test_nn(weights, biases, X_test_hot_enc_scale[:50])
-print 'expected:'
-print Y_test[:50].values.ravel()
-print 'actual:'
-print predicted_classes
-print 'ACCURACY SCORE for custom 3-layers Neural Network'
-print accuracy_score(Y_test[:50].values.ravel(), predicted_classes) * 100
+def three_l_nn_tf(l1, l2, l3, mi, step, stddev, epochs, batch_size):
+    threelnntf = Tlnntf(l1, l2, l3)
+    w, b = threelnntf.init_rand_norm_weights_biases(stddev, threelnntf.nn_structure)
+    threelnntf.train_nn(X_train_enc_scale[:200], encoded_y_train.values.ravel(), w, b, mi, step, epochs, batch_size, stddev)
+        
+
+tot_nodes_l1 = 43
+tot_nodes_l2 = 20
+tot_nodes_l3 = 10
+max_iteration = 3000
+stddev = 0.03
+step = 0.25
+epochs = 10
+batch_size = 100
+avg_cost_curve, acc_score, predicted_classes = three_l_nn(tot_nodes_l1, tot_nodes_l2, tot_nodes_l3, max_iteration, step)
+display(avg_cost_curve, acc_score, predicted_classes)
+
+accuracies, costs = three_l_nn_tf(tot_nodes_l1, tot_nodes_l2, tot_nodes_l3, max_iteration, step, stddev, epochs, batch_size)
+print "ACCURACIES: "
+print accuracies
+print "\nCOSTS: "
+print costs
+print "\n"
+
+
+
