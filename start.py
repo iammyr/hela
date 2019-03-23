@@ -33,7 +33,8 @@ step = 0.25
 epochs = 10
 batch_size = 50
 
-# accuracies, costs = three_l_nn_tf(tot_nodes_l1, tot_nodes_l2, tot_nodes_l3, max_iteration, step, stddev, epochs, batch_size)
+# accuracies, costs = three_l_nn_tf(tot_nodes_l1, tot_nodes_l2, 
+# tot_nodes_l3, max_iteration, step, stddev, epochs, batch_size)
 # print "ACCURACIES: "
 # print accuracies
 # print "\nCOSTS: "
@@ -59,4 +60,30 @@ test_y = encoded_y_test.values.ravel()
 img_width = 6
 img_height = 8
 learning_rate = 0.0001
-convnn.train_nn(num_filters, filter_width, filter_height, pool_width, pool_height, final_grid_width, final_grid_height, test_x, test_y, train_x, train_y, learning_rate, epochs, batch_size, img_width, img_height)
+# convnn.train_nn(num_filters, filter_width, filter_height, 
+#                 pool_width, pool_height, final_grid_width, 
+#                 final_grid_height, test_x, test_y, train_x, 
+#                 train_y, learning_rate, epochs, batch_size, 
+#                 img_width, img_height)
+print 'train_x[:5]'
+print train_x[:20]
+print 'train_y[:5]'
+print train_y[:1000]
+print 'test_x[:5]'
+print test_x[:20]
+print 'test_y tot'
+#print test_y[9000:10000]
+count6 = 0
+count0 = 0
+for y in test_y:
+    if y != 6:
+        count6 += 1
+    if y == 0:
+        count0 += 1
+print len(test_y)
+print 'test_y non 6 (generic) tot'
+print count6
+print 'test_y = 6 tot'
+print len(test_y) - count6
+print 'test_y = 0 (none)'
+print count0
